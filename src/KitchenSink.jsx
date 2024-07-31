@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import * as fabric from "fabric";
-import "./App.css"; // Ensure this file exists
+import Popup from './PopUp'; 
 
 const KitchenSink = () => {
   const canvasRef = useRef(null);
@@ -16,13 +16,13 @@ const KitchenSink = () => {
     strokeWidth: 1,
     path: "",
   });
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     const fabricCanvas = new fabric.Canvas(canvasRef.current);
     setCanvas(fabricCanvas);
 
-    fabricCanvas.setWidth(800);
-    fabricCanvas.setHeight(400);
+    fabricCanvas.setDimensions({ width: 800, height: 400 });
 
     const handleSelection = (e) => {
       updatePropertiesPanel(e);
@@ -81,13 +81,13 @@ const KitchenSink = () => {
   const addImage = () => {
     if (canvas) {
       const imageInstance = new Image();
-      imageInstance.src = "/assets/me.jpg";
+      imageInstance.src = "/assets/earth1.png";
       imageInstance.onload = () => {
         const img = new fabric.Image(imageInstance, {
           left: 10,
           top: 10,
-          width: 50,
-          height: 50,
+          width: 100,
+          height: 100,
         });
         canvas.add(img);
       };
@@ -96,12 +96,15 @@ const KitchenSink = () => {
 
   const addPath = () => {
     if (canvas) {
-      const path = new fabric.Path("M10 10 L50 50 L90 10", {
-        left: 350,
-        top: 50,
-        stroke: "red",
-        strokeWidth: 2,
-      });
+      const path = new fabric.Path(
+        "M24 2C10.745 2 0 12.745 0 26s10.745 24 24 24c2.205 0 4.332-.274 6.386-.766L24 36.273 16.876 25.892 21 24l4-4-5.915-5.914L24 2zM36 22c0 3.31-1.273 6.313-3.384 8.711L24 16l-4 4-5.915 5.914L24 36.273l6.626-4.502C31.417 30.054 34 27.088 34 22c0-6.627-5.373-12-12-12-3.348 0-6.68 1.308-9.114 3.52C13.277 15.188 16.77 19.168 20 22l-4 4-5.915 5.914L24 36.273l6.626-4.502C31.417 30.054 34 27.088 34 22c0-6.627-5.373-12-12-12-3.348 0-6.68 1.308-9.114 3.52C13.277 15.188 16.77 19.168 20 22l-4 4-5.915 5.914L24 36.273l6.626-4.502C31.417 30.054 34 27.088 34 22z",
+        {
+          left: 350,
+          top: 50,
+          stroke: "red",
+          strokeWidth: 2,
+        }
+      );
       canvas.add(path);
     }
   };
@@ -125,7 +128,6 @@ const KitchenSink = () => {
         fill: obj.fill || "black",
         stroke: obj.stroke || "black",
         strokeWidth: obj.strokeWidth || 1,
-        path: obj.path || "",
       };
 
       if (obj.type === "circle") {
@@ -143,7 +145,6 @@ const KitchenSink = () => {
         fill: "black",
         stroke: "black",
         strokeWidth: 1,
-        path: "",
       });
     }
   };
@@ -151,6 +152,11 @@ const KitchenSink = () => {
   const handlePropertyChange = (e) => {
     const { name, value } = e.target;
     if (selectedObject) {
+      if (selectedObject.type === "image" && (name === "fill" || name === "stroke")) {
+        setShowPopup(true);
+        return;
+      }
+
       let newValue = value;
       if (["width", "height", "left", "top", "strokeWidth"].includes(name)) {
         newValue = parseFloat(value) || 0;
@@ -173,6 +179,8 @@ const KitchenSink = () => {
     }
   };
 
+  const closePopup = () => setShowPopup(false);
+
   return (
     <div className="relative p-2 ml-4">
       <div className="relative flex">
@@ -181,98 +189,33 @@ const KitchenSink = () => {
           className="border"
           style={{ border: "1px solid black" }}
         />
-        <div className="absolute top-0 right-20 p-7 bg-white border shadow-md"
-             style={{ width: '250px', zIndex: 10 }}>
-          <h3>Object Properties</h3>
+        <div
+          className="absolute top-0 right-20 p-3 bg-white border shadow-md bg-opacity-75"
+          style={{ width: "300px", zIndex: 10 }}
+        >
+          <h3 className="text-lg font-semibold mb-2 border-b pb-2 text-red-600">Object Properties</h3>
           {selectedObject && (
-            <div>
-              <label>
-                Left:
-                <input
-                  type="number"
-                  name="left"
-                  value={properties.left}
-                  onChange={handlePropertyChange}
-                />
-              </label>
-              <br />
-              <label>
-                Top:
-                <input
-                  type="number"
-                  name="top"
-                  value={properties.top}
-                  onChange={handlePropertyChange}
-                />
-              </label>
-              <br />
-              <label>
-                Width:
-                <input
-                  type="number"
-                  name="width"
-                  value={properties.width}
-                  onChange={handlePropertyChange}
-                />
-              </label>
-              <br />
-              <label>
-                Height:
-                <input
-                  type="number"
-                  name="height"
-                  value={properties.height}
-                  onChange={handlePropertyChange}
-                />
-              </label>
-              <br />
-              <label>
-                Fill Color:
-                <input
-                  type="color"
-                  name="fill"
-                  value={properties.fill}
-                  onChange={handlePropertyChange}
-                />
-              </label>
-              <br />
-              <label>
-                Stroke Color:
-                <input
-                  type="color"
-                  name="stroke"
-                  value={properties.stroke}
-                  onChange={handlePropertyChange}
-                />
-              </label>
-              <br />
-              <label>
-                Stroke Width:
-                <input
-                  type="number"
-                  name="strokeWidth"
-                  value={properties.strokeWidth}
-                  onChange={handlePropertyChange}
-                />
-              </label>
-              <br />
-              {selectedObject.type === "path" && (
-                <>
-                  <label>
-                    Path:
-                    <textarea
-                      name="path"
-                      value={properties.path}
-                      onChange={handlePropertyChange}
-                    />
+            <div className="divide-y divide-gray-300">
+              {['left', 'top', 'width', 'height', 'fill', 'stroke', 'strokeWidth'].map((property) => (
+                <div key={property} className="flex items-center py-2">
+                  <label className="flex-1 uppercase tracking-wide text-gray-700 text-xs font-bold mr-2">
+                    {property.charAt(0).toUpperCase() + property.slice(1).replace(/([A-Z])/g, ' $1')}: 
                   </label>
-                </>
-              )}
+                  <input
+                    type={property === 'fill' || property === 'stroke' ? 'color' : 'number'}
+                    name={property}
+                    value={properties[property]}
+                    onChange={handlePropertyChange}
+                    className="input-field border border-gray-300 p-1 rounded w-1/3"
+                    style={{ maxWidth: '80px' }}
+                  />
+                </div>
+              ))}
             </div>
           )}
         </div>
       </div>
-      <div className=" mt-4  space-x-8 ml-7">
+      <div className="flex gap-2 mt-4">
         <button
           onClick={addRectangle}
           className="bg-gray-200 hover:bg-gray-500 text-black-600 font-semibold hover:text-white py-2 px-2 border border-gray-700 hover:border-transparent rounded text-xs transition duration-300 ease-in-out"
@@ -310,6 +253,12 @@ const KitchenSink = () => {
           Clear Canvas
         </button>
       </div>
+      {showPopup && (
+        <Popup 
+          message="You cannot change the color of the image. ." 
+          onClose={closePopup} 
+        />
+      )}
     </div>
   );
 };
