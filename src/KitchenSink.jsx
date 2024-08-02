@@ -33,18 +33,18 @@ const KitchenSink = () => {
     fabricCanvas.on("selection:created", handleSelection);
     fabricCanvas.on("object:modified", handleSelection);
     fabricCanvas.on("object:moving", handleSelection);
-    fabricCanvas.on("object:scaling",handleSelection);
+    fabricCanvas.on("object:scaling", handleSelection);
     fabricCanvas.on("selection:updated", handleSelection);
     fabricCanvas.on("selection:cleared", () => setSelectedObject(null));
 
     return () => {
       fabricCanvas.off("object:selected", handleSelection);
-    fabricCanvas.off("selection:created", handleSelection);
-    fabricCanvas.off("selection:updated", handleSelection);
-    fabricCanvas.off("object:modified", handleSelection);
-    fabricCanvas.off("object:moving",handleSelection);
-    fabricCanvas.off("object:scaling", handleSelection);
-    fabricCanvas.off("selection:cleared");
+      fabricCanvas.off("selection:created", handleSelection);
+      fabricCanvas.off("selection:updated", handleSelection);
+      fabricCanvas.off("object:modified", handleSelection);
+      fabricCanvas.off("object:moving", handleSelection);
+      fabricCanvas.off("object:scaling", handleSelection);
+      fabricCanvas.off("selection:cleared");
       fabricCanvas.dispose();
     };
   }, []);
@@ -142,8 +142,8 @@ const KitchenSink = () => {
       const newProperties = {
         left: obj.left || 0,
         top: obj.top || 0,
-        width: obj.width*obj.scaleX || 100,
-        height: obj.height*obj.scaleY  || 100,
+        width: obj.width * obj.scaleX || 100,
+        height: obj.height * obj.scaleY || 100,
         fill: obj.fill || "black",
         stroke: obj.stroke || "black",
         strokeWidth: obj.strokeWidth || 1,
@@ -186,18 +186,32 @@ const KitchenSink = () => {
         newValue = parseFloat(value) || 0;
       }
       selectedObject.set(name, newValue);
-      selectedObject.setCoords();
 
       if (name === "radius") {
         selectedObject.set({ radius: newValue });
-        selectedObject.setCoords();
       }
 
       if (name === "fill" || name === "stroke") {
         selectedObject.set(name, newValue);
-        selectedObject.setCoords();
       }
+      if (name === "width" || name === "height") {
+        const scaleX = selectedObject.scaleX;
+        const scaleY = selectedObject.scaleY;
 
+        if (name === "width") {
+          selectedObject.set(
+            "scaleX",
+            newValue / (selectedObject.width )
+          );
+        } else if (name === "height") {
+          selectedObject.set(
+            "scaleY",
+            newValue / (selectedObject.height)
+          );
+        }
+       
+      }
+      selectedObject.setCoords();
       canvas.renderAll();
       setProperties((prevProps) => ({
         ...prevProps,
@@ -300,7 +314,12 @@ const KitchenSink = () => {
           Clear Canvas
         </button>
       </div>
-      {showPopup && <Popup onClose={closePopup} message={"Images cannot have color fills or color strokes"} />}
+      {showPopup && (
+        <Popup
+          onClose={closePopup}
+          message={"Images cannot have color fills or color strokes"}
+        />
+      )}
     </div>
   );
 };
