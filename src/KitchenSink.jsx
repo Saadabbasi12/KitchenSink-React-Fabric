@@ -2,8 +2,6 @@ import React, { useRef, useState, useEffect } from "react";
 import * as fabric from "fabric";
 import Popup from './PopUp'; 
 
-
-
 const KitchenSink = () => {
   const canvasRef = useRef(null);
   const [canvas, setCanvas] = useState(null);
@@ -16,6 +14,7 @@ const KitchenSink = () => {
     fill: "black",
     stroke: "black",
     strokeWidth: 1,
+    radius: 0, // Default radius
     path: "",
   });
   const [showPopup, setShowPopup] = useState(false);
@@ -43,11 +42,18 @@ const KitchenSink = () => {
     };
   }, []);
 
+  const getRandomPosition = () => {
+    const x = Math.floor(Math.random() * (canvas.width - 100)); // Adjust width based on object size
+    const y = Math.floor(Math.random() * (canvas.height - 100)); // Adjust height based on object size
+    return { left: x, top: y };
+  };
+
   const addRectangle = () => {
     if (canvas) {
+      const { left, top } = getRandomPosition();
       const rect = new fabric.Rect({
-        left: 50,
-        top: 50,
+        left,
+        top,
         width: 200,
         height: 80,
         fill: "orange",
@@ -58,9 +64,10 @@ const KitchenSink = () => {
 
   const addCircle = () => {
     if (canvas) {
+      const { left, top } = getRandomPosition();
       const circle = new fabric.Circle({
-        left: 200,
-        top: 100,
+        left,
+        top,
         radius: 40,
         fill: "black",
       });
@@ -70,9 +77,10 @@ const KitchenSink = () => {
 
   const addText = () => {
     if (canvas) {
+      const { left, top } = getRandomPosition();
       const text = new fabric.IText("Edit me!", {
-        left: 50,
-        top: 200,
+        left,
+        top,
         fontSize: 30,
         fill: "black",
       });
@@ -82,12 +90,13 @@ const KitchenSink = () => {
 
   const addImage = () => {
     if (canvas) {
+      const { left, top } = getRandomPosition();
       const imageInstance = new Image();
       imageInstance.src = "/assets/earth1.png";
       imageInstance.onload = () => {
         const img = new fabric.Image(imageInstance, {
-          left: 10,
-          top: 10,
+          left,
+          top,
           width: 100,
           height: 100,
         });
@@ -98,11 +107,12 @@ const KitchenSink = () => {
 
   const addPath = () => {
     if (canvas) {
+      const { left, top } = getRandomPosition();
       const path = new fabric.Path(
         "M24 2C10.745 2 0 12.745 0 26s10.745 24 24 24c2.205 0 4.332-.274 6.386-.766L24 36.273 16.876 25.892 21 24l4-4-5.915-5.914L24 2zM36 22c0 3.31-1.273 6.313-3.384 8.711L24 16l-4 4-5.915 5.914L24 36.273l6.626-4.502C31.417 30.054 34 27.088 34 22c0-6.627-5.373-12-12-12-3.348 0-6.68 1.308-9.114 3.52C13.277 15.188 16.77 19.168 20 22l-4 4-5.915 5.914L24 36.273l6.626-4.502C31.417 30.054 34 27.088 34 22c0-6.627-5.373-12-12-12-3.348 0-6.68 1.308-9.114 3.52C13.277 15.188 16.77 19.168 20 22l-4 4-5.915 5.914L24 36.273l6.626-4.502C31.417 30.054 34 27.088 34 22z",
         {
-          left: 350,
-          top: 50,
+          left,
+          top,
           stroke: "red",
           strokeWidth: 2,
         }
@@ -130,11 +140,8 @@ const KitchenSink = () => {
         fill: obj.fill || "black",
         stroke: obj.stroke || "black",
         strokeWidth: obj.strokeWidth || 1,
+        radius: obj.radius || 0, 
       };
-
-      if (obj.type === "circle") {
-        newProperties.radius = obj.radius || 0;
-      }
 
       setProperties(newProperties);
     } else {
@@ -147,6 +154,7 @@ const KitchenSink = () => {
         fill: "black",
         stroke: "black",
         strokeWidth: 1,
+        radius: 0,
       });
     }
   };
@@ -160,17 +168,20 @@ const KitchenSink = () => {
       }
 
       let newValue = value;
-      if (["width", "height", "left", "top", "strokeWidth"].includes(name)) {
+      if (["width", "height", "left", "top", "strokeWidth", "radius"].includes(name)) {
         newValue = parseFloat(value) || 0;
       }
       selectedObject.set(name, newValue);
+      selectedObject.setCoords();
 
       if (name === "radius") {
         selectedObject.set({ radius: newValue });
+        selectedObject.setCoords();
       }
 
       if (name === "fill" || name === "stroke") {
         selectedObject.set(name, newValue);
+        selectedObject.setCoords();
       }
 
       canvas.renderAll();
@@ -195,10 +206,10 @@ const KitchenSink = () => {
           className="absolute top-0 right-20 p-3 bg-gradient-to-r from-gray-50 from-10%  to-gray-100 to-40% ... shadow-md bg-opacity-75"
           style={{ width: "300px", zIndex: 10 }}
         >
-          <h3 className="text-lg font-semibold mb-2 border-b pb-1  text-red-600">Object Properties</h3>
+          <h3 className="text-lg font-semibold mb-2 border-b pb-1 text-red-600">Object Properties</h3>
           {selectedObject && (
             <div className="divide-y divide-gray-300">
-              {['left', 'top', 'width', 'height', 'fill', 'stroke', 'strokeWidth'].map((property) => (
+              {['left', 'top', 'width', 'height', 'fill', 'stroke', 'strokeWidth', 'radius'].map((property) => (
                 <div key={property} className="flex items-center py-2">
                   <label className="flex-1 uppercase tracking-wide text-gray-700 text-xs font-bold mr-2">
                     {property.charAt(0).toUpperCase() + property.slice(1).replace(/([A-Z])/g, ' $1')}: 
@@ -210,6 +221,7 @@ const KitchenSink = () => {
                     onChange={handlePropertyChange}
                     className="input-field border border-gray-300 p-1 rounded w-1/3"
                     style={{ maxWidth: '80px' }}
+                    disabled={property === 'radius' && selectedObject?.type !== 'circle'}
                   />
                 </div>
               ))}
@@ -222,7 +234,6 @@ const KitchenSink = () => {
           onClick={addRectangle}
           className="bg-gray-200 hover:bg-gray-500 text-black-600 font-semibold hover:text-white py-2 px-2 border border-gray-700 hover:border-transparent rounded text-xs transition duration-300 ease-in-out"
         >
-       
           Add Rectangle
         </button>
         <button
@@ -251,16 +262,13 @@ const KitchenSink = () => {
         </button>
         <button
           onClick={clearCanvas}
-          className="bg-gray-200 hover:bg-gray-500 text-black-600 font-semibold hover:text-white py-2 px-2 border border-gray-700 hover:border-transparent rounded text-xs transition duration-300 ease-in-out"
+          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-xs transition duration-300 ease-in-out"
         >
           Clear Canvas
         </button>
       </div>
       {showPopup && (
-        <Popup 
-          message="You cannot change the color of the image. ." 
-          onClose={closePopup} 
-        />
+        <Popup closePopup={closePopup} />
       )}
     </div>
   );
