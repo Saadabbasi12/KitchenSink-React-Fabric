@@ -2,6 +2,8 @@ import React, { useRef, useState, useEffect } from "react";
 import * as fabric from "fabric";
 import Popup from './PopUp'; 
 
+
+
 const KitchenSink = () => {
   const canvasRef = useRef(null);
   const [canvas, setCanvas] = useState(null);
@@ -48,7 +50,7 @@ const KitchenSink = () => {
         top: 50,
         width: 200,
         height: 80,
-        fill: "blue",
+        fill: "orange",
       });
       canvas.add(rect);
     }
@@ -60,7 +62,7 @@ const KitchenSink = () => {
         left: 200,
         top: 100,
         radius: 40,
-        fill: "green",
+        fill: "black",
       });
       canvas.add(circle);
     }
@@ -190,10 +192,10 @@ const KitchenSink = () => {
           style={{ border: "1px solid black" }}
         />
         <div
-          className="absolute top-0 right-20 p-3 bg-white border shadow-md bg-opacity-75"
+          className="absolute top-0 right-20 p-3 bg-gradient-to-r from-gray-50 from-10%  to-gray-100 to-40% ... shadow-md bg-opacity-75"
           style={{ width: "300px", zIndex: 10 }}
         >
-          <h3 className="text-lg font-semibold mb-2 border-b pb-2 text-red-600">Object Properties</h3>
+          <h3 className="text-lg font-semibold mb-2 border-b pb-1  text-red-600">Object Properties</h3>
           {selectedObject && (
             <div className="divide-y divide-gray-300">
               {['left', 'top', 'width', 'height', 'fill', 'stroke', 'strokeWidth'].map((property) => (
@@ -220,6 +222,7 @@ const KitchenSink = () => {
           onClick={addRectangle}
           className="bg-gray-200 hover:bg-gray-500 text-black-600 font-semibold hover:text-white py-2 px-2 border border-gray-700 hover:border-transparent rounded text-xs transition duration-300 ease-in-out"
         >
+       
           Add Rectangle
         </button>
         <button
