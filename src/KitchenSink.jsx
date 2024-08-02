@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import * as fabric from "fabric";
-import Popup from './PopUp'; 
+import Popup from "./PopUp";
 
 const KitchenSink = () => {
   const canvasRef = useRef(null);
@@ -14,7 +14,7 @@ const KitchenSink = () => {
     fill: "black",
     stroke: "black",
     strokeWidth: 1,
-    radius: 0, // Default radius
+    radius: 0,
     path: "",
   });
   const [showPopup, setShowPopup] = useState(false);
@@ -43,8 +43,8 @@ const KitchenSink = () => {
   }, []);
 
   const getRandomPosition = () => {
-    const x = Math.floor(Math.random() * (canvas.width - 100)); // Adjust width based on object size
-    const y = Math.floor(Math.random() * (canvas.height - 100)); // Adjust height based on object size
+    const x = Math.floor(Math.random() * (canvas.width - 100));
+    const y = Math.floor(Math.random() * (canvas.height - 100));
     return { left: x, top: y };
   };
 
@@ -140,7 +140,7 @@ const KitchenSink = () => {
         fill: obj.fill || "black",
         stroke: obj.stroke || "black",
         strokeWidth: obj.strokeWidth || 1,
-        radius: obj.radius || 0, 
+        radius: obj.radius || 0,
       };
 
       setProperties(newProperties);
@@ -162,13 +162,20 @@ const KitchenSink = () => {
   const handlePropertyChange = (e) => {
     const { name, value } = e.target;
     if (selectedObject) {
-      if (selectedObject.type === "image" && (name === "fill" || name === "stroke")) {
+      if (
+        selectedObject.type === "image" &&
+        (name === "fill" || name === "stroke")
+      ) {
         setShowPopup(true);
         return;
       }
 
       let newValue = value;
-      if (["width", "height", "left", "top", "strokeWidth", "radius"].includes(name)) {
+      if (
+        ["width", "height", "left", "top", "strokeWidth", "radius"].includes(
+          name
+        )
+      ) {
         newValue = parseFloat(value) || 0;
       }
       selectedObject.set(name, newValue);
@@ -206,22 +213,41 @@ const KitchenSink = () => {
           className="absolute top-0 right-20 p-3 bg-gradient-to-r from-gray-50 from-10%  to-gray-100 to-40% ... shadow-md bg-opacity-75"
           style={{ width: "300px", zIndex: 10 }}
         >
-          <h3 className="text-lg font-semibold mb-2 border-b pb-1 text-red-600">Object Properties</h3>
+          <h3 className="text-lg font-semibold mb-2 border-b pb-1 text-red-600">
+            Object Properties
+          </h3>
           {selectedObject && (
             <div className="divide-y divide-gray-300">
-              {['left', 'top', 'width', 'height', 'fill', 'stroke', 'strokeWidth', 'radius'].map((property) => (
+              {[
+                "left",
+                "top",
+                "width",
+                "height",
+                "fill",
+                "stroke",
+                "strokeWidth",
+                "radius",
+              ].map((property) => (
                 <div key={property} className="flex items-center py-2">
                   <label className="flex-1 uppercase tracking-wide text-gray-700 text-xs font-bold mr-2">
-                    {property.charAt(0).toUpperCase() + property.slice(1).replace(/([A-Z])/g, ' $1')}: 
+                    {property.charAt(0).toUpperCase() +
+                      property.slice(1).replace(/([A-Z])/g, " $1")}
+                    :
                   </label>
                   <input
-                    type={property === 'fill' || property === 'stroke' ? 'color' : 'number'}
+                    type={
+                      property === "fill" || property === "stroke"
+                        ? "color"
+                        : "number"
+                    }
                     name={property}
                     value={properties[property]}
                     onChange={handlePropertyChange}
                     className="input-field border border-gray-300 p-1 rounded w-1/3"
-                    style={{ maxWidth: '80px' }}
-                    disabled={property === 'radius' && selectedObject?.type !== 'circle'}
+                    style={{ maxWidth: "80px" }}
+                    disabled={
+                      property === "radius" && selectedObject?.type !== "circle"
+                    }
                   />
                 </div>
               ))}
@@ -267,9 +293,7 @@ const KitchenSink = () => {
           Clear Canvas
         </button>
       </div>
-      {showPopup && (
-        <Popup closePopup={closePopup} />
-      )}
+      {showPopup && <Popup onClose={closePopup} message={"Images cannot have color fills"} />}
     </div>
   );
 };
